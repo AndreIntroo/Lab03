@@ -20,6 +20,7 @@ def main():
 
         if scelta == "1":
             nuovo_responsabile = input("Inserisci il nuovo responsabile: ")
+            deposito.responsabile = nuovo_responsabile
             # TODO: Aggiorna responsabile nel sistema
 
         elif scelta == "2":
@@ -59,6 +60,10 @@ def main():
                 print(e)
 
         elif scelta == "6":
+            print("ELENCO PRESTITI ATTIVI AL MOMENTO")
+            for prestito in deposito.prestiti.values():
+                print(prestito)
+
             id_prestito = input("ID prestito da terminare: ")
             try:
                 deposito.termina_prestito(id_prestito)

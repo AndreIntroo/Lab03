@@ -1,24 +1,105 @@
+from operator import attrgetter
+class Prestito:
+    def __init__(self, codp, data, cods, cognome_a):
+        self.codp = codp
+        self.data = data
+        self.cods = cods
+        self.cognome_a = cognome_a
+    def __str__(self):
+        return f"codice prestito:{self.codp} data: {self.data} codice strumento:{self.cods} cognome allievo effettuante prestito:{self.cognome_a}"
+class Strumento:
+    def __init__(self,codice,tipo, marca, anno_acq, valore):
+        self.codice = codice
+        self.tipo = tipo
+        self.marca = marca
+        self.anno_acq = int(anno_acq)
+        self.valore = float(valore)
+    def __str__(self):
+        return f"codice strumento:{self.codice}, tipo:{self.tipo} , marca: {self.marca}, anno: {self.anno_acq} valore(euro): {self.valore:.2f}"
+
+
 class DepositoStrumenti:
-    def __init__(self, nome, responsabile):
+    def __init__(self, nome, responsabile,):
         """Inizializza gli attributi e le strutture dati"""
-        # TODO
+        self.__nome = nome
+        self.__responsabile = responsabile
+        self.strumenti = {}
+        self.prestiti = {}
+    #scrivo i getter e i setter per gli atrributi che ho messo privati
+    @property
+    def nome(self):
+        return self.__nome
+    @property
+    def responsabile(self):
+        return self.__responsabile
+    @nome.setter
+    def nome(self,nome):
+        self.__nome=nome
+    @responsabile.setter
+    def responsabile(self,responsabile):
+        self.__responsabile=responsabile
+
+    def __str__(self):
+        return f"{self.nome} {self.responsabile} "
+
+
+
+
 
     def carica_file_strumenti(self, file_path):
         """Carica gli strumenti dal file"""
-        # TODO
+        try:
+            with open(file_path, 'r', encoding ='utf_8') as file:
+                for line in file:
+                    campi = line.strip().split(',')
+                    new_strumento = Strumento(campi[0],campi[1], campi[2], campi[3],float(campi[4]))
+                    self.strumenti[campi[0]] = new_strumento
+        except FileNotFoundError:
+            print("non è stato trovato nessun file con quel nome")
 
     def aggiungi_strumento(self, tipo, marca, anno_acquisto, valore):
         """Aggiunge uno strumento nel deposito: aggiunge solo nel sistema e non aggiorna il file"""
-        # TODO
+        identificativo_numero= 0
+        lista_identificativi = []
+        if  not self.strumenti:
+            identificativo_numero = 1
+        else:
+            for k in self.strumenti.keys():
+                lista_identificativi.append(int(k[1:]))
+                identificativo_numero =  1+ max(lista_identificativi)
+        codice = f"S{identificativo_numero}"
+        new_strumento = Strumento(codice, tipo,marca, anno_acquisto, valore)
+        self.strumenti[codice] = new_strumento
+        return new_strumento
 
     def strumenti_ordinati_per_marca(self):
         """Ordina gli strumenti per marca in ordine alfabetico"""
-        # TODO
+        lista = list(self.strumenti.values())
+        return sorted(lista, key=attrgetter("marca"))
 
     def nuovo_prestito(self, data, id_strumento, cognome_allievo):
         """Crea un nuovo prestito"""
-        # TODO
+        if id_strumento not in self.strumenti:
+            raise Exception(f"il codice {id_strumento} non è presente nella lista degli identificativi degli strumenti")
+
+        for p in self.prestiti.values():
+            if p.id_strumento == id_strumento:
+                raise Exception(f"è gia stato effettuato un prestito dello strumento {id_strumento}")
+        id_numero = 0
+        if not self.prestiti:
+            id_numero= 1
+        else:
+            lista_id = []
+            for k in self.prestiti.keys():
+                lista_id.append(int(k[1:]))
+                id_numero = 1+ max(lista_id)
+        codp = f"P{id_numero}"
+        new_prestito = Prestito(codp, data,id_strumento, cognome_allievo)
+        self.prestiti[codp] = new_prestito
+        return new_prestito
 
     def termina_prestito(self, id_prestito):
         """Termina un prestito in atto"""
-        # TODO
+        if id_prestito not in self.prestiti:
+            raise Exception(f"errore: non esiste nessun prestito con questo codice")
+        del self.prestiti[id_prestito]
