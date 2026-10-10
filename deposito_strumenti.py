@@ -12,8 +12,27 @@ class Strumento:
         self.codice = codice
         self.tipo = tipo
         self.marca = marca
-        self.anno_acq = int(anno_acq)
-        self.valore = float(valore)
+        self.__anno_acq = int(anno_acq)
+        self.__valore = float(valore)
+    #scrivo i getter e i setter per tutti gli attrivuti che ho messo privati
+    @property
+    def anno_acq (self):
+        return self.__anno_acq
+    @property
+    def valore(self):
+        return self.__valore
+    @anno_acq.setter
+    def anno_acq(self, anno_acq):
+        anno_num = int(anno_acq)
+        if anno_num>2026:
+            raise Exception("ERRORE: non puoi inserire un anno del futuro per uno strumento")
+        self.__anno_acq = anno_num
+    @valore.setter
+    def valore(self,valore):
+        valore_num = float(valore)
+        if valore_num < 0:
+            raise Exception("ERRORE:non puoi inserire un valore negativo di un oggetto.")
+        self.__valore = valore_num
     def __str__(self):
         return f"codice strumento:{self.codice}, tipo:{self.tipo} , marca: {self.marca}, anno: {self.anno_acq} valore(euro): {self.valore:.2f}"
 
@@ -21,23 +40,12 @@ class Strumento:
 class DepositoStrumenti:
     def __init__(self, nome, responsabile,):
         """Inizializza gli attributi e le strutture dati"""
-        self.__nome = nome
-        self.__responsabile = responsabile
+        self.nome = nome
+        self.responsabile = responsabile
         self.strumenti = {}
         self.prestiti = {}
     #scrivo i getter e i setter per gli atrributi che ho messo privati
-    @property
-    def nome(self):
-        return self.__nome
-    @property
-    def responsabile(self):
-        return self.__responsabile
-    @nome.setter
-    def nome(self,nome):
-        self.__nome=nome
-    @responsabile.setter
-    def responsabile(self,responsabile):
-        self.__responsabile=responsabile
+
 
     def __str__(self):
         return f"{self.nome} {self.responsabile} "
@@ -59,14 +67,13 @@ class DepositoStrumenti:
 
     def aggiungi_strumento(self, tipo, marca, anno_acquisto, valore):
         """Aggiunge uno strumento nel deposito: aggiunge solo nel sistema e non aggiorna il file"""
-        identificativo_numero= 0
         lista_identificativi = []
         if  not self.strumenti:
             identificativo_numero = 1
         else:
             for k in self.strumenti.keys():
                 lista_identificativi.append(int(k[1:]))
-                identificativo_numero =  1+ max(lista_identificativi)
+            identificativo_numero =  1+ max(lista_identificativi)
         codice = f"S{identificativo_numero}"
         new_strumento = Strumento(codice, tipo,marca, anno_acquisto, valore)
         self.strumenti[codice] = new_strumento
@@ -83,16 +90,15 @@ class DepositoStrumenti:
             raise Exception(f"il codice {id_strumento} non è presente nella lista degli identificativi degli strumenti")
 
         for p in self.prestiti.values():
-            if p.id_strumento == id_strumento:
+            if p.cods== id_strumento:
                 raise Exception(f"è gia stato effettuato un prestito dello strumento {id_strumento}")
-        id_numero = 0
         if not self.prestiti:
             id_numero= 1
         else:
             lista_id = []
             for k in self.prestiti.keys():
                 lista_id.append(int(k[1:]))
-                id_numero = 1+ max(lista_id)
+            id_numero = 1+ max(lista_id)
         codp = f"P{id_numero}"
         new_prestito = Prestito(codp, data,id_strumento, cognome_allievo)
         self.prestiti[codp] = new_prestito
